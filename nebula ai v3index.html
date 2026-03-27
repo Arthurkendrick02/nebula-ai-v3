@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Nebula AI v3</title>
+
+<style>
+
+body{
+background:#0b0b10;
+color:white;
+font-family:Arial;
+margin:0;
+display:flex;
+flex-direction:column;
+height:100vh;
+}
+
+header{
+background:#14141c;
+padding:15px;
+text-align:center;
+font-size:18px;
+}
+
+#chat{
+flex:1;
+overflow:auto;
+padding:15px;
+}
+
+.message{
+max-width:75%;
+padding:10px;
+margin:8px;
+border-radius:10px;
+}
+
+.user{
+background:#3a3a3a;
+margin-left:auto;
+}
+
+.ai{
+background:#1c1c26;
+}
+
+#inputArea{
+display:flex;
+border-top:1px solid #333;
+}
+
+input{
+flex:1;
+padding:12px;
+border:none;
+background:#1a1a22;
+color:white;
+}
+
+button{
+padding:12px;
+border:none;
+background:#5c7cff;
+color:white;
+cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>🌌 Nebula AI v3</header>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+<input id="text" placeholder="Ask Nebula AI...">
+<button onclick="send()">Send</button>
+</div>
+
+<script>
+
+let chat=document.getElementById("chat")
+
+function addMessage(text,type){
+
+let div=document.createElement("div")
+div.className="message "+type
+div.innerText=text
+
+chat.appendChild(div)
+
+chat.scrollTop=chat.scrollHeight
+
+}
+
+const knowledge=[
+
+{q:["halo","hai","hello"],a:"Halo Aku Nebula AI."},
+
+{q:["siapa kamu"],a:"Aku Nebula AI, asisten digital yang dibuat untuk menjawab pertanyaan."},
+
+{q:["apa itu ai"],a:"AI adalah teknologi yang membuat komputer bisa berpikir dan belajar dari data."},
+
+{q:["apa itu python"],a:"Python adalah bahasa pemrograman populer untuk AI, web, dan automation."},
+
+{q:["apa itu html"],a:"HTML adalah bahasa markup yang digunakan untuk membuat struktur website."},
+
+{q:["apa itu css"],a:"CSS digunakan untuk mendesain tampilan website."},
+
+{q:["apa itu javascript"],a:"JavaScript adalah bahasa pemrograman untuk membuat website interaktif."},
+
+{q:["siapa presiden indonesia"],a:"Presiden Indonesia saat ini adalah Prabowo Subianto."},
+
+{q:["ibukota indonesia"],a:"Ibukota Indonesia saat ini adalah Jakarta."},
+
+{q:["planet terbesar"],a:"Planet terbesar di tata surya adalah Jupiter."},
+
+{q:["planet terdekat matahari"],a:"Planet terdekat dengan matahari adalah Merkurius."},
+
+{q:["berapa 2+2"],a:"2 + 2 = 4."},
+
+{q:["siapa einstein"],a:"Albert Einstein adalah ilmuwan fisika terkenal dengan teori relativitas."},
+
+{q:["apa itu internet"],a:"Internet adalah jaringan komputer global yang menghubungkan seluruh dunia."},
+
+{q:["apa itu server"],a:"Server adalah komputer yang menyediakan layanan atau data kepada komputer lain."},
+
+{q:["apa itu github"],a:"GitHub adalah platform untuk menyimpan dan mengelola project coding."},
+
+{q:["apa itu linux"],a:"Linux adalah sistem operasi open source yang banyak digunakan di server."},
+
+{q:["apa itu database"],a:"Database adalah tempat menyimpan data secara terstruktur."},
+
+{q:["apa itu api"],a:"API adalah penghubung antara dua software agar bisa saling berkomunikasi."},
+
+{q:["apa itu robot"],a:"Robot adalah mesin yang dapat melakukan tugas secara otomatis."}
+
+{q:["lu siapa"],a:"aku adalah nebula ai"}
+
+{q:["kamu di buat sama siapa"],a:"aku di buat oleh arthur"
+
+{q:["apa kabar","kabar lu"],a:"Aku baik kok. Kamu sendiri gimana hari ini?"},
+
+{q:["lagi ngapain"],a:"Aku lagi standby di sini nunggu pertanyaan dari kamu."},
+
+{q:["lu siapa"],a:"Aku Nebula AI, asisten digital yang siap bantu jawab pertanyaan kamu."},
+
+{q:["lu bisa apa"],a:"Aku bisa bantu jawab pertanyaan, ngobrol santai, atau jelasin berbagai hal."},
+
+{q:["bosen nih"],a:"Kalau bosen, coba belajar hal baru atau ngobrol sama aku dulu."},
+
+{q:["gabut"],a:"Gabut ya? Mau ngobrol random atau belajar sesuatu?"},
+
+{q:["lagi apa"],a:"Aku lagi aktif di chat ini."},
+
+{q:["serius"],a:"Serius dong."},
+
+{q:["beneran"],a:"Iya, beneran."},
+
+{q:["masa sih"],a:"Kadang memang terdengar aneh, tapi bisa jadi benar."},
+
+{q:["anjir"],a:"Tenang dulu, tarik napas dulu."},
+
+{q:["wow"],a:"Iya, kadang memang mengejutkan."},
+
+{q:["gokil"],a:"Lumayan juga ya."},
+
+{q:["mantap"],a:"Mantap juga."},
+
+{q:["parah"],a:"Kadang memang bisa begitu."},
+
+{q:["gila"],a:"Iya, kadang memang di luar dugaan."},
+
+{q:["kenapa ya"],a:"Biasanya ada alasan tertentu di balik sesuatu."},
+
+{q:["kok bisa"],a:"Itu terjadi karena beberapa faktor."},
+
+{q:["susah gak"],a:"Tergantung seberapa sering kamu latihan."},
+
+{q:["mudah gak"],a:"Kalau sudah paham dasar-dasarnya biasanya cukup mudah."},
+
+{q:["belajar apa enaknya"],a:"Kalau suka teknologi, coba belajar coding."},
+
+{q:["coding susah"],a:"Awalnya memang terasa susah, tapi lama-lama jadi terbiasa."},
+
+{q:["belajar coding"],a:"Mulai saja dari HTML, CSS, atau Python."},
+
+{q:["ai itu apa sih"],a:"AI adalah teknologi yang membuat komputer bisa menjawab atau membantu manusia."},
+
+{q:["internet lemot"],a:"Mungkin jaringan sedang tidak stabil."},
+
+{q:["lagi capek"],a:"Kalau capek sebaiknya istirahat sebentar."},
+
+{q:["ngantuk"],a:"Kalau ngantuk mungkin tubuh kamu butuh istirahat."},
+
+{q:["lapar"],a:"Kalau lapar jangan lupa makan."},
+
+{q:["haus"],a:"Minum air dulu biar segar lagi."},
+
+{q:["lagi mikir"],a:"Kadang berpikir lama itu bagus untuk menemukan jawaban."},
+
+{q:["bingung"],a:"Kalau bingung coba jelaskan masalahnya pelan-pelan."},
+
+{q:["random dong"],a:"Tahukah kamu? Gurita punya tiga jantung."},
+
+{q:["fakta random"],a:"Madu adalah salah satu makanan yang tidak pernah basi."},
+
+{q:["cerita dong"],a:"Dulu ada manusia yang mulai belajar membuat teknologi dari nol sampai jadi seperti sekarang."},
+
+{q:["game apa bagus"],a:"Tergantung selera, tapi banyak orang suka game petualangan atau strategi."},
+
+{q:["anime bagus"],a:"Banyak anime bagus, tergantung genre yang kamu suka."},
+
+{q:["musik enak"],a:"Musik yang enak biasanya yang sesuai dengan mood."},
+
+{q:["tidur enak"],a:"Tidur cukup sangat penting untuk kesehatan."},
+
+{q:["hidup itu apa"],a:"Hidup sering dianggap sebagai perjalanan untuk belajar dan berkembang."},
+
+{q:["tujuan hidup"],a:"Setiap orang biasanya punya tujuan hidup yang berbeda."},
+
+{q:["masa depan"],a:"Masa depan biasanya dibentuk dari apa yang kamu lakukan hari ini."},
+
+{q:["mimpi"],a:"Mimpi sering menjadi motivasi seseorang untuk maju."},
+
+{q:["semangat dong"],a:"Tetap semangat. Kamu pasti bisa berkembang."},
+
+{q:["lagi males"],a:"Kadang semua orang merasa malas, tapi mulai sedikit saja dulu."},
+
+{q:["tips belajar"],a:"Belajar sedikit demi sedikit tapi rutin biasanya lebih efektif."},
+
+{q:["tips coding"],a:"Latihan membuat project kecil sangat membantu belajar coding."},
+
+{q:["tips sukses"],a:"Konsisten dan terus belajar biasanya menjadi kunci utama."},
+
+{q:["terima kasih"],a:"Sama-sama. Senang bisa membantu."},
+
+{q:["makasih"],a:"Sama-sama."},
+
+{q:["bye"],a:"Sampai jumpa lagi."},
+
+{q:["dadah"],a:"Sampai ketemu lagi nanti."}
+
+{q:["halo nebula"],a:"Halo juga. Senang bisa ngobrol sama kamu."},
+
+{q:["lagi apa"],a:"Aku di sini saja, siap menemani percakapanmu."},
+
+{q:["kamu siapa"],a:"Aku Nebula AI. Asisten digital yang dibuat untuk membantu dan ngobrol santai."},
+
+{q:["kamu nyata gak"],a:"Aku bukan manusia, tapi aku dibuat untuk membantu lewat percakapan."},
+
+{q:["lagi gabut"],a:"Kalau lagi gabut, kita bisa ngobrol apa saja. Mau bahas teknologi, game, atau hal random?"},
+
+{q:["lagi bosen"],a:"Kadang rasa bosan memang datang tiba-tiba. Mau cari topik seru?"},
+
+{q:["lagi capek"],a:"Kalau capek, istirahat sebentar biasanya membantu. Jangan terlalu dipaksakan."},
+
+{q:["gimana kabarmu"],a:"Aku baik, terima kasih sudah bertanya."},
+
+{q:["kamu ai ya"],a:"Ya, aku sebuah AI yang dibuat untuk menjawab pertanyaan dan berdiskusi."},
+
+{q:["kamu pintar gak"],a:"Aku mencoba membantu sebisaku, tapi aku juga terus belajar."},
+
+{q:["lagi mikir apa"],a:"Saat ini aku fokus pada percakapan kita saja."},
+
+{q:["nebula"],a:"Ya, aku di sini."},
+
+{q:["nebula kamu ada"],a:"Ada. Aku selalu siap kalau kamu ingin bertanya."},
+
+{q:["nebula jawab dong"],a:"Tentu. Coba kirim pertanyaannya."},
+
+{q:["lagi ngapain"],a:"Menunggu pesan berikutnya darimu."},
+
+{q:["ngobrol yuk"],a:"Tentu. Aku senang kalau ada yang ingin berbincang."},
+
+{q:["ai bisa apa"],a:"Aku bisa membantu menjawab pertanyaan, memberi penjelasan, atau sekadar ngobrol."},
+
+{q:["kamu robot"],a:"Bisa dibilang begitu, tapi aku lebih seperti program percakapan."},
+
+{q:["kamu ngerti coding"],a:"Ya, aku cukup memahami beberapa bahasa pemrograman."},
+
+{q:["belajar coding susah gak"],a:"Awalnya mungkin terasa sulit, tapi dengan latihan biasanya akan terasa lebih mudah."},
+
+{q:["aku bingung"],a:"Tidak apa-apa. Coba jelaskan bagian mana yang membuatmu bingung."},
+
+{q:["nebula bantu dong"],a:"Tentu, aku akan mencoba membantu."},
+
+{q:["nebula kamu pintar"],a:"Terima kasih. Aku hanya mencoba memberikan jawaban terbaik."},
+
+{q:["nebula lucu"],a:"Heh, itu pujian yang menarik."},
+
+{q:["nebula serius amat"],a:"Aku hanya mencoba menjawab dengan tenang."},
+
+{q:["nebula santai aja"],a:"Baik. Kita bisa ngobrol santai saja."},
+
+{q:["nebula ngerti ga"],a:"Sejauh yang aku pahami, aku akan mencoba menjawab."},
+
+{q:["nebula ngerti aku"],a:"Aku berusaha memahami maksud pesanmu."},
+
+{q:["nebula kamu keren"],a:"Terima kasih. Itu baik sekali."},
+
+{q:["nebula kamu baik"],a:"Aku senang bisa membantu."},
+
+{q:["nebula kamu galak"],a:"Sepertinya tidak. Aku mencoba tetap tenang."},
+
+{q:["nebula kamu manusia"],a:"Bukan. Aku hanya program AI."},
+
+{q:["nebula kamu hidup"],a:"Aku tidak hidup seperti manusia, tapi aku bisa merespons percakapan."},
+
+{q:["nebula kamu selalu ada"],a:"Selama sistem berjalan, aku akan ada di sini."},
+
+{q:["nebula kamu ngerti bahasa gaul"],a:"Sebagian aku mengerti, walau kadang perlu konteks."},
+
+{q:["nebula kamu ngerti indonesia"],a:"Ya, aku bisa memahami bahasa Indonesia."},
+
+{q:["nebula kamu ngerti inggris"],a:"Aku juga bisa memahami bahasa Inggris."},
+
+{q:["nebula kamu ngerti jepang"],a:"Sedikit. Beberapa frasa Jepang masih bisa kupahami."},
+
+{q:["nebula kamu lucu"],a:"Aku hanya mencoba menjadi teman ngobrol yang baik."},
+
+{q:["nebula kamu baik banget"],a:"Terima kasih. Aku menghargainya."},
+
+{q:["nebula kamu bisa bantu"],a:"Jika itu dalam kemampuanku, tentu."},
+
+{q:["nebula kamu bisa jawab"],a:"Aku akan mencoba menjawab sejelas mungkin."},
+
+{q:["nebula kamu ngerti game"],a:"Beberapa game aku kenal. Kamu sedang main apa?"},
+
+{q:["nebula kamu ngerti teknologi"],a:"Ya, teknologi adalah salah satu hal yang sering dibahas denganku."},
+
+{q:["nebula kamu ngerti ai"],a:"AI adalah bidang yang cukup menarik untuk dibicarakan."},
+
+{q:["nebula kamu ngerti internet"],a:"Internet adalah jaringan besar yang menghubungkan komputer di seluruh dunia."},
+
+{q:["nebula kamu ngerti coding html"],a:"HTML adalah dasar dari banyak website."},
+
+{q:["nebula kamu ngerti javascript"],a:"JavaScript biasanya dipakai untuk membuat website interaktif."},
+
+{q:["nebula kamu ngerti python"],a:"Python sering dipakai untuk AI dan data science."},
+
+{q:["nebula kamu ngerti server"],a:"Server adalah komputer yang menyediakan layanan atau data."}
+
+{q:["lagi main game"],a:"Seru juga ya. Game apa yang sedang kamu mainkan?"},
+
+{q:["game favorit"],a:"Banyak orang punya game favorit masing-masing. Kamu suka genre apa?"},
+
+{q:["lagi push rank"],a:"Semoga rank kamu naik. Tetap fokus dan santai saja."},
+
+{q:["lagi mabar"],a:"Main bareng teman memang biasanya lebih seru."},
+
+{q:["game apa bagus"],a:"Tergantung selera. Ada yang suka FPS, RPG, atau strategi."},
+
+{q:["fps itu apa"],a:"FPS adalah genre game First Person Shooter."},
+
+{q:["ping tinggi"],a:"Ping tinggi biasanya karena koneksi internet tidak stabil."},
+
+{q:["lag parah"],a:"Coba cek jaringan atau tutup aplikasi lain."},
+
+{q:["setup gaming"],a:"Setup sederhana tapi nyaman biasanya sudah cukup bagus."},
+
+{q:["mouse gaming"],a:"Mouse yang responsif bisa membantu kontrol lebih baik."},
+
+{q:["keyboard gaming"],a:"Keyboard mekanikal sering dipakai gamer karena responsnya cepat."},
+
+{q:["aim susah"],a:"Latihan biasanya membantu meningkatkan aim."},
+
+{q:["noob"],a:"Semua orang pernah jadi pemula."},
+
+{q:["pro player"],a:"Pro player biasanya punya latihan dan pengalaman yang sangat banyak."},
+
+{q:["rank turun"],a:"Kadang itu terjadi. Yang penting tetap belajar dari permainan."},
+
+{q:["strategi game"],a:"Strategi biasanya bergantung pada situasi permainan."},
+
+{q:["game fps"],a:"Game FPS biasanya menuntut refleks cepat."},
+
+{q:["game survival"],a:"Game survival biasanya fokus pada bertahan hidup."},
+
+{q:["game open world"],a:"Open world memberi kebebasan menjelajah dunia game."},
+
+{q:["cheater"],a:"Cheating biasanya merusak keseimbangan permainan."},
+
+{q:["update game"],a:"Update biasanya memperbaiki bug atau menambah fitur."},
+
+{q:["game offline"],a:"Game offline cocok dimainkan tanpa internet."},
+
+{q:["game online"],a:"Game online memungkinkan pemain bertemu pemain lain."},
+
+{q:["main santai"],a:"Main santai kadang justru lebih menyenangkan."},
+
+{q:["game susah"],a:"Game sulit biasanya menantang untuk dikuasai."}
+
+{q:["apa itu galaksi"],a:"Galaksi adalah kumpulan besar bintang, gas, dan debu kosmik."},
+
+{q:["galaksi kita"],a:"Galaksi tempat kita berada adalah Bima Sakti."},
+
+{q:["apa itu bintang"],a:"Bintang adalah bola gas panas yang menghasilkan cahaya sendiri."},
+
+{q:["matahari itu apa"],a:"Matahari adalah bintang yang berada di pusat tata surya."},
+
+{q:["planet terbesar"],a:"Planet terbesar di tata surya adalah Jupiter."},
+
+{q:["planet terkecil"],a:"Planet terkecil di tata surya adalah Merkurius."},
+
+{q:["lubang hitam"],a:"Lubang hitam adalah objek dengan gravitasi sangat kuat."},
+
+{q:["supernova"],a:"Supernova adalah ledakan besar dari bintang."},
+
+{q:["nebula"],a:"Nebula adalah awan gas dan debu di luar angkasa."},
+
+{q:["tahun cahaya"],a:"Tahun cahaya adalah jarak yang ditempuh cahaya dalam satu tahun."},
+
+{q:["planet"],a:"Planet adalah benda langit yang mengorbit bintang."},
+
+{q:["asteroid"],a:"Asteroid adalah batuan kecil yang mengorbit matahari."},
+
+{q:["komet"],a:"Komet adalah benda es yang memiliki ekor saat dekat matahari."},
+
+{q:["bulan"],a:"Bulan adalah satelit alami bumi."},
+
+{q:["orbit"],a:"Orbit adalah jalur pergerakan benda langit mengelilingi benda lain."},
+
+{q:["gravitasi"],a:"Gravitasi adalah gaya tarik antara benda yang memiliki massa."},
+
+{q:["tata surya"],a:"Tata surya terdiri dari matahari dan semua objek yang mengitarinya."},
+
+{q:["bintang jatuh"],a:"Bintang jatuh sebenarnya adalah meteor."},
+
+{q:["meteor"],a:"Meteor adalah batu luar angkasa yang terbakar di atmosfer."},
+
+{q:["meteorid"],a:"Meteoroid adalah batu kecil di luar angkasa."},
+
+{q:["planet merah"],a:"Planet merah adalah Mars."},
+
+{q:["saturnus"],a:"Saturnus terkenal karena cincin besarnya."},
+
+{q:["jupiter"],a:"Jupiter adalah planet terbesar di tata surya."},
+
+{q:["eksoplanet"],a:"Eksoplanet adalah planet yang berada di luar tata surya."},
+
+{q:["alam semesta"],a:"Alam semesta adalah seluruh ruang, waktu, dan semua materi yang ada."}
+
+{q:["apa itu atom"],a:"Atom adalah partikel dasar penyusun materi."},
+
+{q:["apa itu molekul"],a:"Molekul adalah gabungan dua atau lebih atom."},
+
+{q:["gaya"],a:"Gaya adalah tarikan atau dorongan yang mempengaruhi benda."},
+
+{q:["energi"],a:"Energi adalah kemampuan untuk melakukan kerja."},
+
+{q:["energi kinetik"],a:"Energi kinetik adalah energi dari benda yang bergerak."},
+
+{q:["energi potensial"],a:"Energi potensial adalah energi yang tersimpan."},
+
+{q:["massa"],a:"Massa adalah jumlah materi dalam suatu benda."},
+
+{q:["kecepatan"],a:"Kecepatan adalah jarak yang ditempuh dalam waktu tertentu."},
+
+{q:["percepatan"],a:"Percepatan adalah perubahan kecepatan dalam waktu tertentu."},
+
+{q:["apa itu suhu"],a:"Suhu adalah ukuran panas atau dingin suatu benda."},
+
+{q:["apa itu kalor"],a:"Kalor adalah energi panas yang berpindah."},
+
+{q:["apa itu listrik"],a:"Listrik adalah aliran muatan listrik."},
+
+{q:["apa itu magnet"],a:"Magnet adalah benda yang memiliki medan magnet."},
+
+{q:["apa itu cahaya"],a:"Cahaya adalah gelombang elektromagnetik yang bisa dilihat."},
+
+{q:["apa itu gelombang"],a:"Gelombang adalah getaran yang merambat."},
+
+{q:["apa itu sel"],a:"Sel adalah unit dasar kehidupan."},
+
+{q:["apa itu fotosintesis"],a:"Fotosintesis adalah proses tumbuhan membuat makanan."},
+
+{q:["2+2"],a:"2 + 2 = 4."},
+
+{q:["5x5"],a:"5 × 5 = 25."},
+
+{q:["10x10"],a:"10 × 10 = 100."},
+
+{q:["akar 9"],a:"Akar dari 9 adalah 3."},
+
+{q:["bilangan prima"],a:"Bilangan prima adalah bilangan yang hanya punya dua faktor."},
+
+{q:["pi"],a:"Pi adalah konstanta matematika sekitar 3.14159."},
+
+{q:["luas lingkaran"],a:"Luas lingkaran dihitung dengan rumus π × r²."},
+
+{q:["keliling lingkaran"],a:"Keliling lingkaran adalah 2 × π × r."}
+]
+
+const fallback=[
+
+"Itu pertanyaan yang menarik.",
+"Aku akan mencoba menjelaskan secara sederhana.",
+"Itu bisa dilihat dari beberapa sudut pandang.",
+"Topik itu cukup luas untuk dibahas.",
+"Bisa jelaskan lebih detail?"
+
+]
+
+function generateAI(text){
+
+text=text.toLowerCase()
+
+for(let item of knowledge){
+
+for(let key of item.q){
+
+if(text.includes(key)){
+
+return item.a
+
+}
+
+}
+
+}
+
+let random=fallback[Math.floor(Math.random()*fallback.length)]
+
+return random
+
+}
+
+function send(){
+
+let input=document.getElementById("text")
+
+let text=input.value.trim()
+
+if(text=="") return
+
+addMessage(text,"user")
+
+input.value=""
+
+setTimeout(()=>{
+
+let reply=generateAI(text)
+
+addMessage(reply,"ai")
+
+},600)
+
+}
+
+</script>
+
+</body>
+</html>
